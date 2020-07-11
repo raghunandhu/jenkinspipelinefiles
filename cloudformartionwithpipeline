@@ -1,0 +1,24 @@
+pipeline{
+    agent any
+    environment 
+    {
+       dockerfile='tomcat'
+       ECRCRED = 'ecr:us-east-1:ecr-cred'
+       AWS_ACCESS_KEY_ID = credentials('AWS_KEY1')
+       AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET1')
+       region = 'us-east-1'
+    }
+    stages
+    {
+        stage('stack_creation')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'aws cloudformation create-stack  --stack-name  hari1  --template-url https://latesterre.s3.amazonaws.com/creatinstance.yaml --region us-east-1'
+                }
+            }
+        }
+    }
+}
