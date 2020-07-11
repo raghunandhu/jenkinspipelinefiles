@@ -1,0 +1,68 @@
+pipeline
+{
+    agent any
+    environment 
+    {
+       dockerfile='tomcat'
+       ECRCRED = 'new'
+       AWS_ACCESS_KEY_ID = credentials('AWS_KEY1')
+       AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET1')
+       image = 'https://140839674073.dkr.ecr.ap-south-1.amazonaws.com/harshad:latest'
+    }
+    stages
+    {
+        stage('Check Out') 
+        {
+            steps 
+            {
+                 script
+                 {
+                     git([url: 'https://github.com/harsha-209/dockerfilepractice.git', branch: 'master'])
+                 }
+            }           
+        }
+        stage('build')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'docker build -t harshad2.0 .'
+                }
+            }
+        }
+        stage('tag')
+        {
+            steps
+            {
+                script
+                {
+                   sh 'docker tag harshad2.0 140839674073.dkr.ecr.ap-south-1.amazonaws.com/harshad:latest '
+                   sh 'echo hello world'
+                }
+            }
+        }
+        stage('docker login')
+        {
+            steps
+            {
+                script
+                {
+                    sh '$(aws ecr get-login --no-include-email --region ap-south-1)' 
+                }
+            }
+        }
+        stage('dockerpush')
+        {
+            steps
+            {
+                script
+                {
+                   sh 'docker push 140839674073.dkr.ecr.ap-south-1.amazonaws.com/harshad:latest'
+                    //docker.withRegistry('https://140839674073.dkr.ecr.ap-south-1.amazonaws.com/harshad:latest', 'dockerimageid') {
+                      //docker.image('image').push('latest')}
+                }
+            }
+        }
+    }
+}
