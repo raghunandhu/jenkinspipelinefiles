@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    
+    stages
+    {
+        stage('Ok')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'ls'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            mail to:"nanduri.harshadsai@gmail.com", subject:"SUCCESS: ${currentBuild.fullDisplayName}", body: "Boo, we passed,${currentBuild.fullDisplayName}, ${env.JOB_NAME}, ${env.BUILD_URL}."
+        }
+        failure {
+            mail to:"nanduri.harshadsai@gmail.com", subject:"FAILURE: ${currentBuild.fullDisplayName}", body: "Boo, we failed."
+        }
+    }   
+} 
