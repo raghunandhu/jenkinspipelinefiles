@@ -1,0 +1,27 @@
+job1:(upstream)
+node {
+    paramAValue = "paramAValue"
+    paramBValue = "vamshi"
+    build job: 'downstream', parameters: [[$class: 'StringParameterValue', name: 'FROM_BUILD', value: "${BUILD_NUMBER}"],[$class: 'StringParameterValue', name: 'ParamB', value: "vamshi"]]
+    build job: 'downstream1', parameters: [[$class: 'StringParameterValue', name: 'FROM_BUILD', value: "${BUILD_NUMBER}"],[$class: 'StringParameterValue', name: 'ParamB', value: "sai"]]
+}
+
+job2:(downstream)
+
+
+pipeline {
+    agent any
+    parameters {
+        string(name:'FROM_BUILD')
+        string(name:'lambda_build')
+    }
+    stages {
+        stage('build') {
+            steps {
+                echo "getting value from source ${params.FROM_BUILD}"
+                echo "now getting value from second parameter ${params.ParamB}"
+               // echo "please print this value ${params.hari}"
+            }
+        }
+    }
+}
