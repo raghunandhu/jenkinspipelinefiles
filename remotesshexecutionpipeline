@@ -1,0 +1,30 @@
+def remote = [:]
+  remote.name = 'remote'
+  remote.host = '13.127.18.220'
+  remote.user = 'ubuntu'
+  remote.password = 'ubuntu'
+  remote.allowAnyHosts = true
+pipeline {
+    agent any
+
+  stages {  
+ stage('Check Out') {
+     steps{
+	 //properties([pipelineTriggers([pollSCM('* * * * *')])])
+     cleanWs()
+      git([url: 'https://github.com/harsha-209/dockerfilepractice.git', branch: 'master'])
+		}
+ }
+  stage('Remote SSH') {
+      steps{
+    sshCommand remote: remote, command: "ifconfig; whoami"
+    sshCommand remote: remote, command: "mkdir varsha"
+	sshCommand remote: remote, command: "sudo /bin/rm -rf /etl/BOE_AllClients_V12/"
+	sshCommand remote: remote, command: "sudo /bin/rm -rf /etl/BOE_AllClients_V12.zip"    
+    sshCommand remote: remote, command: "sudo /bin/mkdir /etl/BOE_AllClients_V12/"
+    sshCommand remote: remote, command: "cd /etl/BOE_AllClients_V12/;ls -al"
+
+      }
+  }
+  }
+}
