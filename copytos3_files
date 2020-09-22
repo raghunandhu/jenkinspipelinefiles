@@ -1,0 +1,56 @@
+pipeline
+{
+    agent any
+    environment 
+    {
+       dockerfile='tomcat'
+       ECRCRED = 'ecr:us-east-1:ecr-cred'
+       AWS_ACCESS_KEY_ID = credentials('AWS_KEY1')
+       AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET1')
+    }
+    stages
+    {
+        stage('Check Out') 
+        {
+            steps 
+            {
+                 script
+                 {
+                     git([url: 'https://github.com/buddy-works/simple-java-project.git', branch: 'master'])
+                 }
+            }           
+        }
+        stage('build')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'mvn clean install '
+                }
+            }
+        }
+        stage('cp to s3')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'aws s3 cp /home/minfy/bharathproject/mavenselfinstall/simple-java-project/target/works-with-heroku-1.0.war s3://templateshgdh/works-with-heroku-1.0.war --acl public-read'
+                }
+            }
+        }
+        stage('build dockerfile')
+        {
+            steps
+            {
+                script
+                {
+                    //sh  'sudo chmod 600 /var/run/docker.sock'
+                    sh  'docker build -t sai:newone .'
+                    sh 'docker run -tid -p 9096:8080 --name mytomcat sai:newone'
+                }
+            }
+        }
+    }
+}
