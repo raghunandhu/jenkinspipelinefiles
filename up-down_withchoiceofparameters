@@ -1,0 +1,37 @@
+job1:(upstream)
+
+pipeline {
+    agent any
+    parameters {
+        choice(choices: ['Windows', 'Linux'], description: 'What OS?', name: 'PickAnOS')
+    }
+    stages {
+        stage("run downstream job") {
+            steps {
+                echo "You choose: ${params.PickAnOS}"
+                build job: 'downstream1', parameters: [string(name: 'OS', value: "${params.PickAnOS}")]
+            }
+        }
+    }
+}
+
+job2:(downstrean)
+
+pipeline {
+    agent any
+    parameters {
+       string(name:'OS')
+        //choice(choices: ['TESTING', 'STAGING', 'PRODUCTION'], description: 'Select field for target environment', name: 'PickAnOS')
+        //string(name:'lambda_build')
+    }
+    stages {
+        stage('build') {
+            steps {
+               // echo "getting value from source ${params.FROM_BUILD}"
+                echo "now getting value from second parameter ${params.OS}"
+                echo "now getting value from second parameter ${OS}"
+               // echo "please print this value ${params.hari}"
+            }
+        }
+    }
+}
