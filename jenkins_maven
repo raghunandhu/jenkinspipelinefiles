@@ -1,0 +1,74 @@
+pipeline
+{
+    agent any
+    environment 
+    {
+       dockerfile='tomcat'
+    }
+    stages
+    {
+        stage('Check Out') 
+        {
+            steps 
+            {
+                 script
+                 {
+                     checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/buddy-works/simple-java-project.git']]])
+                 }
+            }           
+        }
+        stage('build')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'mvn clean install '
+                }
+            }
+        }
+        stage('build dockerfile')
+        {
+            steps
+            {
+                script
+                {
+                    //sh  'sudo chmod 600 /var/run/docker.sock'
+                    sh  'docker build -t sai1:newone .'
+                }
+            }
+        }
+        stage('docker tag')
+        {
+            steps
+            {
+                script
+                {
+                   // sh 'echo hello world'
+                    sh 'docker tag sai1:newone 743694115654.dkr.ecr.us-east-1.amazonaws.com/harshad1:latest'
+                }
+            }
+        }
+        stage('docker login')
+        {
+            steps
+            {
+                script
+                {
+                    sh '$(aws ecr get-login --no-include-email --region=us-east-1)'
+                }
+            }
+        }
+        stage('docker push')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'docker push 743694115654.dkr.ecr.us-east-1.amazonaws.com/harshad1:latest'
+                }
+            }
+        }
+    }
+}
+                    
