@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage ('checkout'){
+            steps {
+                echo 'pulling code from repo'
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/harsha-209/dockerfilepractice.git']]])
+            }
+        }
+        stage ('build the code'){
+            steps {
+                sh 'sudo docker build -t raghu .'
+            }
+        }
+        stage('tag') {
+            steps{
+               sh 'sudo docker tag raghu:latest 400786363496.dkr.ecr.ap-south-1.amazonaws.com/ecr_img1:latest'
+            }
+        }
+        stage('aws ecr login'){
+            steps{
+                sh 'sudo $(aws ecr get-login --no-include-email)' 
+            }
+        }
+    }
+}
