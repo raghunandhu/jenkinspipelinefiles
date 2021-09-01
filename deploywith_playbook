@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/raghunandhu/simple-java-project.git']]])
+            }
+        }
+        stage('build ') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+        stage('docker build') {
+            steps {
+                sh 'docker build -t img1:1 .'
+            }
+        }    
+        stage('tag image') {
+            steps {
+                sh 'docker tag img1:1 400786363496.dkr.ecr.ap-south-1.amazonaws.com/newrepo:latest'
+            }
+        }
+        stage('login to ecr') {
+            steps {
+                sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 400786363496.dkr.ecr.ap-south-1.amazonaws.com'
+            }
+        }
+        stage('push to ecr') {
+            steps {
+                sh 'docker push 400786363496.dkr.ecr.ap-south-1.amazonaws.com/newrepo:latest'
+            }
+        }
+        stage('execute playbook') {
+            steps {
+                sh 'ansible-playbook dockerpull.yml'
+            }
+        }
+    }
+}
